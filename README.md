@@ -31,7 +31,7 @@ This repository is developed and tested on Ubuntu 18.04, Python 3.6+, and PyTorc
 
 1. Download [the trained models](https://kaistackr-my.sharepoint.com/:u:/g/personal/zeroyy_kaist_ac_kr/Ec1UIsDDLHtKia04_TTRbygBepXORv__kkq-C9IqZs32aA?e=bJGXQr) and extract to `./output` folder (it also includes the trained autoencoder model for FGD).
 
-0. Download [the preprocessed TED dataset](https://kaistackr-my.sharepoint.com/:u:/g/personal/zeroyy_kaist_ac_kr/EYAPLf8Hvn9Oq9GMljHDTK4BRab7rl9hAOcnjkriqL8qSg) (16GB) and extract the ZIP file into `data/ted_dataset`. You can find out the details of the TED datset from [here](https://github.com/youngwoo-yoon/youtube-gesture-dataset), and please refer to the paper how we extended the existing TED dataset.
+0. Download [the preprocessed TED dataset](https://kaistackr-my.sharepoint.com/:u:/g/personal/zeroyy_kaist_ac_kr/EYAPLf8Hvn9Oq9GMljHDTK4BRab7rl9hAOcnjkriqL8qSg) (16GB) and extract the ZIP file into `data/youtube_dataset`. You can find out the details of the TED datset from [here](https://github.com/youngwoo-yoon/youtube-gesture-dataset), and please refer to the paper how we extended the existing TED dataset.
 
 0. Download pretrianed fasttext model from [here](https://dl.fbaipublicfiles.com/fasttext/vectors-english/crawl-300d-2M-subword.zip) and put `crawl-300d-2M-subword.bin` and `crawl-300d-2M-subword.vec` at `data/fasttext`.
 

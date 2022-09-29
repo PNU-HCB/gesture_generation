@@ -1,11 +1,11 @@
 name: seq2seq
 
-train_data_path: data/ted_dataset/lmdb_train
-val_data_path: data/ted_dataset/lmdb_val
-test_data_path: data/ted_dataset/lmdb_test
+train_data_path: data/youtube_dataset/lmdb_train
+val_data_path: data/youtube_dataset/lmdb_val
+test_data_path: data/youtube_dataset/lmdb_test
 
 wordembed_dim: 300
-wordembed_path: data/fasttext/crawl-300d-2M-subword.bin
+wordembed_path: data/fasttext/cc.ko.300.bin  # from fasttext
 
 model_save_path: output/train_seq2seq
 random_seed: -1
@@ -35,4 +35,4 @@ motion_resampling_framerate: 15
 n_poses: 34
 n_pre_poses: 4
 subdivision_stride: 10
-loader_workers: 3
+loader_workers: 0

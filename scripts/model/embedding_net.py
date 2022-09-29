@@ -273,9 +273,10 @@ class EmbeddingNet(nn.Module):
             self.decoder = PoseDecoderConv(n_frames, pose_dim)
         self.mode = mode
 
-    def forward(self, in_text, in_audio, pre_poses, poses, input_mode=None, variational_encoding=False):
+    def forward(self, in_text, pre_poses, poses, input_mode=None, variational_encoding=False):
         if input_mode is None:
             assert self.mode is not None
+
             input_mode = self.mode
 
         # context
@@ -301,6 +302,7 @@ class EmbeddingNet(nn.Module):
         elif input_mode == 'pose':
             latent_feat = poses_feat
         else:
+
             assert False
 
         out_poses = self.decoder(latent_feat, pre_poses)

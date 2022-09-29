@@ -30,6 +30,7 @@ from torch import optim
 
 from data_loader.lmdb_data_loader import *
 import utils.train_utils
+import torchvision.utils as vutils
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -75,7 +76,7 @@ def train_epochs(args, train_data_loader, test_data_loader, lang_model, pose_dim
 
     # interval params
     print_interval = int(len(train_data_loader) / 5)
-    print('=====',print_interval,'======',len(train_data_loader),'======',len(test_data_loader),'======')
+    print('=====print_interval: ',print_interval,' train_data_loader: ',len(train_data_loader),' test_data_loader: ',len(test_data_loader),' ======')
     save_sample_result_epoch_interval = 10
     save_model_epoch_interval = 20
 
@@ -172,8 +173,6 @@ def train_epochs(args, train_data_loader, test_data_loader, lang_model, pose_dim
 
             in_text = in_text.to(device)
             in_text_padded = in_text_padded.to(device)
-            #in_audio = in_audio.to(device)
-            #in_spec = in_spec.to(device)
             target_vec = target_vec.to(device)
 
             # speaker input
@@ -250,8 +249,6 @@ def evaluate_testset(test_data_loader, generator, loss_fn, embed_space_evaluator
 
             in_text = in_text.to(device)
             in_text_padded = in_text_padded.to(device)
-            #in_audio = in_audio.to(device)
-            #in_spec = in_spec.to(device)
             target = target_vec.to(device)
 
             # speaker input
@@ -352,8 +349,6 @@ def evaluate_sample_and_save_video(epoch, prefix, test_data_loader, generator, a
                 in_text = in_text[select_index, :].unsqueeze(0).to(device)
                 text_lengths = text_lengths[select_index].unsqueeze(0).to(device)
             in_text_padded = in_text_padded[select_index, :].unsqueeze(0).to(device)
-            #in_audio = in_audio[select_index, :].unsqueeze(0).to(device)
-            #in_spec = in_spec[select_index, :, :].unsqueeze(0).to(device)
             target_dir_vec = target_dir_vec[select_index, :, :].unsqueeze(0).to(device)
 
             input_words = []
@@ -400,7 +395,6 @@ def evaluate_sample_and_save_video(epoch, prefix, test_data_loader, generator, a
                 out_dir_vec = generator(in_spec, pre_seq_partial)
 
             # to video
-            #audio_npy = np.squeeze(in_audio.cpu().numpy())
             target_dir_vec = np.squeeze(target_dir_vec.cpu().numpy())
             out_dir_vec = np.squeeze(out_dir_vec.cpu().numpy())
 
@@ -417,7 +411,6 @@ def evaluate_sample_and_save_video(epoch, prefix, test_data_loader, generator, a
             out_dir_vec = out_dir_vec.reshape((out_dir_vec.shape[0], 9, 3))
             out_raw.append({
                 'sentence': sentence,
-                #'audio': audio_npy,
                 'human_dir_vec': target_dir_vec + mean_data,
                 'out_dir_vec': out_dir_vec + mean_data,
                 'aux_info': aux_str
@@ -429,7 +422,7 @@ def evaluate_sample_and_save_video(epoch, prefix, test_data_loader, generator, a
     return out_raw
 
 
-def main(config):
+def train(config):
     args = config['args']
 
     # random seed
@@ -452,8 +445,6 @@ def main(config):
 
     # dataset
     mean_dir_vec = np.array(args.mean_dir_vec).reshape(-1, 3)
-    print("=====train path=====")
-    print(args.train_data_path)
     train_dataset = SpeechMotionDataset(args.train_data_path[0],
                                         n_poses=args.n_poses,
                                         subdivision_stride=args.subdivision_stride,
@@ -462,8 +453,7 @@ def main(config):
                                         mean_pose=args.mean_pose,
                                         remove_word_timing=(args.input_context == 'text')
                                         )
-    print("=====")
-    print(train_dataset)
+
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batch_size,
                               shuffle=True, drop_last=True, num_workers=args.loader_workers, pin_memory=True,
                               collate_fn=collate_fn
@@ -505,5 +495,6 @@ def main(config):
 
 
 if __name__ == '__main__':
+    #torch.multiprocessing.set_start_method('spawn')
     _args = parse_args()
-    main({'args': _args})
+    train({'args': _args})

@@ -45,9 +45,9 @@ class EmbeddingSpaceEvaluator:
     def push_samples(self, context_text, generated_poses, real_poses):
         # convert poses to latent features
         pre_poses = real_poses[:, 0:self.n_pre_poses]
-        context_feat, _, _, real_feat, _, _, real_recon = self.net(context_text, None, pre_poses, real_poses,
+        context_feat, _, _, real_feat, _, _, real_recon = self.net(context_text, pre_poses, real_poses,
                                                                    'pose', variational_encoding=False)
-        _, _, _, generated_feat, _, _, generated_recon = self.net(None, None, pre_poses, generated_poses,
+        _, _, _, generated_feat, _, _, generated_recon = self.net(None, pre_poses, generated_poses,
                                                                   'pose', variational_encoding=False)
 
         if context_feat:

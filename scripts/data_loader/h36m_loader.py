@@ -4,6 +4,7 @@ import random
 import torch
 import numpy as np
 from torch.utils.data import Dataset
+import sys
 
 from utils.data_utils import convert_pose_seq_to_dir_vec, convert_dir_vec_to_pose
 
@@ -13,7 +14,16 @@ test_subject = ['S11']
 
 class Human36M(Dataset):
     def __init__(self, path, mean_data, is_train=True, augment=False):
+        def alter_position_for_custom_train(skeletons):
+            for skeleton in skeletons:
+                skeleton[4] = [(skeleton[3][0] + skeleton[5][0]) / 2, (skeleton[3][1] + skeleton[5][1]) / 2, (skeleton[3][2] + skeleton[5][2]) / 2]
+                skeleton[6][1], skeleton[9][1] = skeleton[3][1], skeleton[3][1]
+
+
+
         n_poses = 34
+
+        # RHip, LHip, Spine, Thorax, Neck, Head, LShoulder, LElbow, LWrist, RShoulder, RElbow, RWrist
         target_joints = [1, 6, 12, 13, 14, 15, 17, 18, 19, 25, 26, 27]  # see https://github.com/kenkra/3d-pose-baseline-vmd/wiki/body
 
         self.is_train = is_train
@@ -34,7 +44,8 @@ class Human36M(Dataset):
                 continue
 
             for action_name, positions in actions.items():
-                positions = positions[:, target_joints]
+                positions = positions[:, target_joints] # target joints에 해당하는 인덱스의 좌표만 가져오는 문법!
+                alter_position_for_custom_train(positions)
                 positions = self.normalize(positions)
                 for f in range(0, len(positions), 10):
                     if f+n_poses*frame_stride > len(positions):

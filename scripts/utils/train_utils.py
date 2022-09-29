@@ -121,17 +121,20 @@ def create_video_and_save(save_path, epoch, prefix, iter_idx, target, output, me
 
     # save video
     try:
-        video_path = '{}/temp_{}_{:03d}_{}.gif'.format(save_path, prefix, epoch, iter_idx)
-        ani.save(video_path, fps=15, dpi=80)  # dpi 150 for a higher resolution
+        # Set up formatting for the movie files
+        Writer = animation.writers['ffmpeg']
+        writer = Writer(fps=15)
+
+        video_path = '{}/temp_{}_{:03d}_{}.mp4'.format(save_path, prefix, epoch, iter_idx)
+        ani.save(video_path, writer=writer, dpi=80)  # dpi 150 for a higher resolution
         del ani
         plt.close(fig)
     except RuntimeError:
         assert False, 'RuntimeError'
 
     # merge audio and video
-    '''
-    if audio0 is not None:
-        merged_video_path = '{}/{}_{:03d}_{}.gif'.format(save_path, prefix, epoch, iter_idx)
+    if audio is not None:
+        merged_video_path = '{}/{}_{:03d}_{}.mp4'.format(save_path, prefix, epoch, iter_idx)
         cmd = ['ffmpeg', '-loglevel', 'panic', '-y', '-i', video_path, '-i', audio_path, '-strict', '-2',
                merged_video_path]
         if clipping_to_shortest_stream:
@@ -140,7 +143,7 @@ def create_video_and_save(save_path, epoch, prefix, iter_idx, target, output, me
         if delete_audio_file:
             os.remove(audio_path)
         os.remove(video_path)
-    '''
+
     print('done, took {:.1f} seconds'.format(time.time() - start))
     return output_poses, target_poses
 

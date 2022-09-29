@@ -53,7 +53,7 @@ def train_iter_embed(args, epoch, in_text, in_audio, target_data, net, optim, mo
 
 def eval_embed(in_text, pre_poses, target_poses, net, mode=None):
     context_feat, context_mu, context_logvar, poses_feat, pose_mu, pose_logvar, recon_poses = \
-        net(in_text, pre_poses, target_poses, mode, variational_encoding=False)
+    net(in_text, pre_poses, target_poses, mode, variational_encoding=False)
 
     recon_loss = F.l1_loss(recon_poses, target_poses, reduction='none')
     recon_loss = torch.mean(recon_loss, dim=(1, 2))

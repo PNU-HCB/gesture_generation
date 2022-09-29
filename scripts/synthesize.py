@@ -24,16 +24,11 @@ from train import evaluate_testset
 from utils.data_utils import extract_melspectrogram, remove_tags_marks, convert_dir_vec_to_pose
 from utils.train_utils import create_video_and_save, set_logger
 from utils.tts_helper import TTSHelper
-
-
-
-
 from data_loader.data_preprocessor import DataPreprocessor
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'C:\\Users\\makem\\ProjectHcb\\Gesture-Generation-from-Trimodal-Context\\scripts\\airy-shuttle-361110-4d39350b7ac6.json'
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
 
 def generate_gestures(args, pose_decoder, lang_model, audio, words, audio_sr=16000, vid=None,
                       seed_seq=None, fade_out=False):
@@ -128,7 +123,6 @@ def generate_gestures(args, pose_decoder, lang_model, audio, words, audio_sr=160
         pre_seq_partial = pre_seq[0, 0:args.n_pre_poses, :-1].unsqueeze(0)
 
         # synthesize
-        print(in_text_padded)
         if args.model == 'multimodal_context':
             out_dir_vec, *_ = pose_decoder(pre_seq, in_text_padded, vid)
         elif args.model == 'joint_embedding':
@@ -211,7 +205,7 @@ def generate_gestures(args, pose_decoder, lang_model, audio, words, audio_sr=160
     return out_dir_vec
 
 
-def align_words(audio, text):
+def align_words(audio):
     # resample audio to 8K
     audio_8k = librosa.resample(audio, 16000, 8000)
     wave_file = 'output/temp.wav'
@@ -243,6 +237,8 @@ def align_words(audio, text):
             end_time = word_info.end_time
             words_with_timestamps.append([word, start_time.total_seconds(), end_time.total_seconds()])
 
+    print(words_with_timestamps)
+
     return words_with_timestamps
 
 
@@ -256,7 +252,7 @@ def main(mode, checkpoint_path, option):
     mean_dir_vec = np.array(args.mean_dir_vec).squeeze()
 
     # load lang_model
-    vocab_cache_path = os.path.join('data/ted_dataset', 'vocab_cache.pkl')
+    vocab_cache_path = os.path.join('data/youtube_dataset', 'vocab_cache.pkl')
     with open(vocab_cache_path, 'rb') as f:
         lang_model = pickle.load(f)
 
@@ -274,11 +270,10 @@ def main(mode, checkpoint_path, option):
                                       mean_pose=mean_pose,
                                       mean_dir_vec=mean_dir_vec
                                       )
-        print(len(dataset))
         return dataset
 
     if mode == 'eval':
-        val_data_path = 'data/ted_dataset/lmdb_val'
+        val_data_path = 'data/youtube_dataset/lmdb_val'
         eval_net_path = 'output/train_h36m_gesture_autoencoder/gesture_autoencoder_checkpoint_best.bin'
         embed_space_evaluator = EmbeddingSpaceEvaluator(args, eval_net_path, lang_model, device)
         val_dataset = load_dataset(val_data_path)
@@ -291,7 +286,10 @@ def main(mode, checkpoint_path, option):
         random.seed()
 
         examples = [
-            '안녕하세요 저는 황원식입니다 오늘 날씨가 좋네요 저는 27살 입니다 저의 취미는 게임입니다',
+            '안녕하세요, 오늘은 쉐프가 준비한 요리를 대접해드릴게요. 맛있는 음식 기대해주세요.',
+            '내가 건달 생활을 열일곱에 시작했다. 그 나이 때 건달 시작한 놈들이 백 명이다 치면, 지금 나만큼 사는 놈은 나 하나야. 나는 어떻게 이 자리까지 왔냐? 잘난 놈 재끼고, 못난 놈 보내고, 식구는 챙기고, 배신하는 놈은 ... 죽였다,',
+            '무엇을 도와 드릴까요? 해당 상품의 가격은 100원 입니다. 이 상품을 구매하시겠습니까?',
+            '안녕하세요 저는 황원식입니다. 오늘 날씨가 좋네요. 저는 27살 입니다. 저의 취미는 게임입니다. 저는 독서를 즐겨 합니다.',
             '안녕하세요 저는 박현성입니다'
         ]
 
@@ -322,16 +320,13 @@ def main(mode, checkpoint_path, option):
 
         # generation
         text_without_tags = remove_tags_marks(input_text)
-        print(text_without_tags)
 
         tts_filename = tts.synthesis(input_text, voice_name=voice, verbose=False)
         sound_obj, duration = tts.get_sound_obj(tts_filename)
         print('TTS complete (audio length: {0:.1f}s)'.format(duration))
         audio, audio_sr = librosa.load(tts_filename, mono=True, sr=16000, res_type='kaiser_fast')
 
-        words_with_timestamps = align_words(audio, text_without_tags)
-        print('===================align words!!!!!!==================')
-        print(words_with_timestamps)
+        words_with_timestamps = align_words(audio)
 
         dir_vec = generate_gestures(args, generator, lang_model, audio, words_with_timestamps, vid=vid,
                                     fade_out=False)
@@ -354,7 +349,7 @@ def main(mode, checkpoint_path, option):
             pickle.dump(save_dict, f)
 
     elif mode == 'from_db_clip':
-        test_data_path = 'data/ted_dataset/lmdb_test'
+        test_data_path = 'data/youtube_dataset/lmdb_test'
         save_path = 'output/generation_results'
         clip_duration_range = [5, 12]
         random.seed()

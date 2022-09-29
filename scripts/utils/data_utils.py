@@ -116,5 +116,4 @@ def convert_pose_seq_to_dir_vec(pose):
                 dir_vec[j, :, i, :] = normalize(dir_vec[j, :, i, :], axis=1)  # to unit length
     else:
         assert False
-
     return dir_vec

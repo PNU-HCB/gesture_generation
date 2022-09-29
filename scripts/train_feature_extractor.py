@@ -37,7 +37,7 @@ def evaluate_testset(test_data_loader, generator):
 
             target = target_vec.to(device)
 
-            loss, _ = eval_embed(None, None, None, target, generator)
+            loss, _ = eval_embed(None, None, target, generator)
             losses.update(loss.item(), batch_size)
 
     # back to training mode
@@ -59,7 +59,7 @@ def train_iter(args, epoch, target_data, net, optim):
 
     # reconstruction loss
     context_feat, context_mu, context_logvar, poses_feat, pose_mu, pose_logvar, recon_data = \
-        net(None, None, None, target_data, None, variational_encoding=variational_encoding)
+        net(None, None, target_data, None, variational_encoding=variational_encoding)
 
     recon_loss = F.l1_loss(recon_data, target_data, reduction='none')
     recon_loss = torch.mean(recon_loss, dim=(1, 2))
@@ -155,11 +155,9 @@ def main(config):
                 utils.train_utils.save_checkpoint({
                     'args': args, 'epoch': epoch, 'pose_dim': pose_dim, 'gen_dict': gen_state_dict,
                 }, save_name)
-
         # save sample results
         if args.save_result_video and epoch % save_sample_result_epoch_interval == 0:
             evaluate_sample_and_save_video(epoch, args.name, test_loader, generator, args=args)
-
         # train iter
         iter_start_time = time.time()
         for iter_idx, (target_pose, target_vec) in enumerate(train_loader, 0):
@@ -212,7 +210,7 @@ def evaluate_sample_and_save_video(epoch, prefix, test_data_loader, generator, a
             target_dir_vec = target_dir_vec[select_index, :, :].unsqueeze(0).to(device)
 
             # generation
-            _, _, _, _, _, _, out_dir_vec = generator(None, None, None, target_dir_vec, variational_encoding=False)
+            _, _, _, _, _, _, out_dir_vec = generator(None, None, target_dir_vec, variational_encoding=False)
 
             # to video
             target_dir_vec = np.squeeze(target_dir_vec.cpu().numpy())

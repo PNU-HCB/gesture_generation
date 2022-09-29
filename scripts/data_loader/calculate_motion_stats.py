@@ -54,5 +54,5 @@ if __name__ == '__main__':
     matplotlib.use('TkAgg')
     np.set_printoptions(precision=7, suppress=True)
 
-    lmdb_base_path = '../../data/ted_dataset'
+    lmdb_base_path = '../../data/youtube_dataset'
     calculate_data_mean(lmdb_base_path)

@@ -1,8 +1,8 @@
-
 import os
 import io
 from google.cloud import speech
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'C:\\Users\\makem\\ProjectHcb\\Gesture-Generation-from-Trimodal-Context\\scripts\\airy-shuttle-361110-4d39350b7ac6.json'
 
 def align_words():
     # resample audio to 8K
@@ -35,5 +35,4 @@ def align_words():
 
     return words_with_timestamps
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = 'C:\\Users\\makem\\ProjectHcb\\Gesture-Generation-from-Trimodal-Context\\scripts\\airy-shuttle-361110-4d39350b7ac6.json'
 print(align_words())
